@@ -10,9 +10,11 @@ import metered
 from contextlib import contextmanager
 import time
 import import_hack as ih
+import logging
+import pprint
 
 MAX_THREADS = 32
-PAGES = 12
+PAGES = 1
 
 @contextmanager
 def ignored(*exceptions):
@@ -32,20 +34,21 @@ def write_html(outfile, html):
         f.write(html)
 
 def process_torrent(title, lock, game_data):
-    print("Searching: " + title['title'])
+    logger.info("Searching: " + title['title'])
     data = {}
     data["torrent_title"] = title['title']
     results = meta_scraper.brute_search(title['title'])
     if results:
         best = results[0]
         if best['url']:
-            print("Found: " + best['title'])
-            print(best['url'])
+            data['title'] = best['title']
+            logger.info("Found: " + best['title'])
+            logger.info(best['url'])
             review = meta_scraper.get_review_data(best['url'])
             if review:
                 data.update(review)
             data['tlurl'] = title['url']
-            pp.pprint(data)
+            logger.info(pprint.pformat(data))
     with lock:
         game_data.append(data)
 
@@ -66,11 +69,13 @@ def audit_game_data(game_data):
     for gd in game_data:
         with ignored(KeyError): review_title_count += 1 if gd['title'] else 0
         with ignored(KeyError): title_count += 1 if gd['torrent_title'] else 0
-    print('AUDIT >> len(game_data): {}, title_count: {}, review_title_count: {}'.format(len(game_data), title_count, review_title_count))
+    logger.info('AUDIT >> len(game_data): {}, title_count: {}, review_title_count: {}'.format(len(game_data), title_count, review_title_count))
 
 if __name__ == '__main__':
-    import pprint
     pp = pprint.PrettyPrinter(indent=4)
+    
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
     
     session = tl_fetch.Session()
     game_data = []
@@ -109,4 +114,4 @@ if __name__ == '__main__':
     vars = {"game_data": game_data}
     html = gen_report_html('web/template.html', vars)
     write_html('report.html', html)
-    print("Report Written")
+    logger.info("Report Written")
