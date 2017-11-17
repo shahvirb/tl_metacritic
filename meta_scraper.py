@@ -38,15 +38,6 @@ def parse_title_page(soup):
     with ignored(exc): d['critics'] = soup.find('div', 'summary').find(itemprop="reviewCount").get_text().strip();
     with ignored(exc): d['score_user'] = soup.find('div', 'details side_details').find_all('div', 'metascore_w')[0].get_text();
     with ignored(exc): d['ratings'] = soup.find_all('div', 'summary')[1].find('a').get_text();
-    # try:
-    #     d['title'] = soup.find('h1', 'product_title').find('span').get_text().strip()
-    #     d['date_pub'] = soup.find('div', 'product_data').find(itemprop='datePublished').get_text()
-    #     d['score_review'] = soup.find('div', 'details main_details').find('div', 'metascore_w').get_text()
-    #     d['critics'] = soup.find('div', 'summary').find(itemprop="reviewCount").get_text().strip()
-    #     d['score_user'] = soup.find('div', 'details side_details').find_all('div', 'metascore_w')[0].# get_text()
-    #     d['ratings'] = soup.find_all('div', 'summary')[1].find('a').get_text()
-    # except (IndexError, AttributeError):
-    #     pass
     return d
 
 def parse_search_page(soup, platform_filter=None):
