@@ -99,5 +99,6 @@ ENV/
 .mypy_cache/
 
 *.html
+web/
 !web/template.html
 geckodriver.exe
