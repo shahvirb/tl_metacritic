@@ -102,3 +102,4 @@ ENV/
 web/
 !web/template.html
 geckodriver.exe
+credentials.py

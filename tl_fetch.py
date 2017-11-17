@@ -1,20 +1,16 @@
+import credentials
 import requests
 
 TL_BASE = 'https://www.torrentleech.org'
 TL_LOGIN = '/user/account/login/'
 TL_PC_GAMES_PAGE = '/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/'
 
-CREDENTIALS = {
-    'password': 'Ju12s4ther,ro4',
-    'username': 'JustAnotherBro',
-}
-
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1'}
 
 class Session:
     def __init__(self):
         self.s = requests.Session()
-        self.s.post(TL_BASE + TL_LOGIN, data=CREDENTIALS)
+        self.s.post(TL_BASE + TL_LOGIN, data=credentials.CREDENTIALS)
     
     def fetch_html(self, url):
         return self.s.get(url, headers=HEADERS).content
