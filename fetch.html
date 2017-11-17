@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <title>Browse Torrents :: TorrentLeech.org</title>
+    
+            <!--    -->                                        <!--    -->        <link href="/templates/tl_default/css/default.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/torrents/browse/torrentTable.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/font-awesome.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/animate.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/bootstrap-dialog.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/selectivity-jquery.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/style.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/ie7/ie7.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/tliconsstyle.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/jquery.pnotify.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/magnific-popup.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/templates/tl_default/css/new/sceditor.default.min.css" media="screen" rel="stylesheet" type="text/css" />        <!--    -->    <!--    -->                                            
+                            <script type="text/javascript" src="/js/global/jquery-1.12.1.min.js"></script>
+<script type="text/javascript" src="/js/global/jquery-migrate-1.3.0.min.js"></script>
+<script type="text/javascript" src="/js/global/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/global/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/js/global/selectivity-jquery.min.js"></script>
+<script type="text/javascript" src="/js/global/jquery.browser.js"></script>
+<script type="text/javascript" src="/js/global/jquery.gritter.min.js"></script>
+<script type="text/javascript" src="/js/global/jquery.corner.js"></script>
+<script type="text/javascript" src="/js/global/jquery.form.js"></script>
+<script type="text/javascript" src="/js/global/jquery.validate.pack.js"></script>
+<script type="text/javascript" src="/js/global/jquery.validate.password.js"></script>
+<script type="text/javascript" src="/js/global/jquery.qtip-1.0.0-rc3.min.js"></script>
+<script type="text/javascript" src="/js/global/fxc-clip.js"></script>
+<script type="text/javascript" src="/js/global/jquery.pnotify.min.js"></script>
+<script type="text/javascript" src="/js/global/globalfunctions.js"></script>
+<script type="text/javascript" src="/js/global/jquery.dialog.js"></script>
+<script type="text/javascript" src="/js/global/index_new.js"></script>
+<script type="text/javascript" src="/js/global/jquery.sceditor.bbcode.min.js"></script>
+<script type="text/javascript" src="/js/torrents/browse/date.format.js"></script><!--    <script src="https://use.fontawesome.com/5a952ca7c1.js"></script>-->
+</head>
+<body>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('ul.nav li.dropdown').hover(function() {
+            $(this).find('.dropdown-menu').stop(true, true).delay(100).fadeIn(300);
+        }, function() {
+            $(this).find('.dropdown-menu').stop(true, true).delay(100).fadeOut(300);
+        });
+    });
+
+    //    if (screen.width <= 800) {
+    //        window.location = "https://www.torrentleech.org";
+    //    }
+
+    if (navigator.userAgent.indexOf('Mac OS X') != -1) {
+        $("body").css("font-family", 'Arial, Helvetica, sans-serif');
+    }
+</script>
+    <script>
+        $(function() {
+
+            var excludeMusicCheck = "";
+            var selectedCategories = new Array();
+            $("#filtertorrents input[name='category[]']:checked").each(function() {
+                selectedCategories.push($(this).val());
+            });
+
+
+            $('.excludeMusic').change(function(){
+                $flag = $(this).attr('checked');
+                if ($flag) {
+                    excludeMusicCheck = "";
+                } else {
+                    excludeMusicCheck = "0";
+                }
+            });
+
+            $('input[type="checkbox"]').change(function(){
+
+                $flag = $(this).attr('checked');
+                if ($flag) {
+                    $("#filtertorrents input[name='category[]']:checked").each(function() {
+                        selectedCategories.push($(this).val());
+                    });
+                } else {
+                    $("#filtertorrents input[name='category[]']:unchecked").each(function() {
+                        selectedCategories.pop($(this).val());
+                    });
+                }
+            });
+
+
+            $("#searchtxt").autocomplete({
+                source : function(request, response) {
+                    var searchvalue = $("#searchtxt").val();
+                    $.ajax({
+                        url : '/torrents/browse/autocomplete',
+                        dataType : 'json',
+                        data: {'search': searchvalue, 'categories': selectedCategories, 'excludeMusicCheck': excludeMusicCheck },
+                        success : function(data) {
+                            var docs = JSON.stringify(data);
+                            var jsonData = JSON.parse(docs);
+                            response($.map(jsonData, function(value, key) {
+                                return {
+                                    label : value.name + " in " + value.category ,
+                                    value : value.name
+                                }
+                            }));
+                        }
+                    });
+                },
+                focus:function(e,ui) {
+                    return false;
+                },
+                minLength : 1,
+                messages: {
+                    noResults: '',
+                    results: function() {}
+                },
+                select: function(event, ui) {
+                    $("#searchtxt").val(ui.item.value);
+                    $("#searchForm").submit(); }
+            })
+
+        });
+    </script>
+
+<div class="container">
+    <nav id="navbar-main" class="top-container navbar navbar-default navbar-fixed-top" style="border-bottom: 1px solid #101010;">
+
+        <a href="/" title="Home" id="logo"></a>
+        <form id="searchForm" name="searchForm" style="display: inline-flex;width:19%;min-width:200px; max-width:350px;">
+
+            <div id="searchContainer">
+                <input autocomplete="off" class="txt ui-autocomplete-input" id="searchtxt" name="search" style="height: 30px; border-radius: 2px; border-top-left-radius: 2px; color: rgb(255, 255, 255); padding-left: 10px; font-weight: bold; border: medium none; margin-top: 16px; font-size: 12px; background: rgb(70, 70, 70) none repeat scroll 0% 0%; margin-left: 0px; z-index=1;padding-right:54px;box-sizing: border-box;width:100%;" size="40" placeholder="Search Torrents" value="" type="text">
+
+                <div id="searchTool">
+                    <button role="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="tlsearchconfig" title="Advanced search config" type="button" value=""><span class="ui-button-text"><i class="fa fa-cog"></i></span></button>
+                    <button id="tlsearchbutton" title="search" type="submit" value=""><i class="fa fa-search"></i></button>
+                </div>
+            </div>
+        </form>
+        <div style="display: inline-flex;margin-left:1px;">
+            <span class="ui-buttonset" id="filterTools">
+            <input class="ui-helper-hidden-accessible" id="facetButton" name="facetButton" style="display:none;" type="checkbox">
+            <label role="button" title="Advanced Filter" id="filterlabel" for="facetButton" class="btn btn-default waves-effect waves-ripple ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left"><span class="ui-button-text"><span class="ui-button-text">Filter</span></span></label>
+            <i style="display:none;" class="waves-effect waves-ripple ui-helper-hidden-accessible waves-input-wrapper"><input id="categoryButton" class="waves-button-input" name="categoryButton" type="checkbox"></i>
+            <label role="button" title="Expand Categories" for="categoryButton" id="categorylabel" class="btn btn-default waves-effect waves-ripple ui-button ui-widget ui-state-default ui-button-text-only"><span class="ui-button-text"><span class="ui-button-text">Categories</span></span></label>
+            <a style="background: transparent linear-gradient(rgb(90, 0, 0) 0%, rgb(90, 0, 0) 51%, rgb(66, 0, 0) 52%, rgb(97, 0, 0) 100%) repeat scroll 0% 0%;" role="button" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right" id="browselink" title="Browse Torrents" href="/torrents/browse" onmouseover="this.style.background='linear-gradient(rgba(140, 2, 2, 0.85) 0%, rgba(143, 2, 2, 1) 51%, rgba(119, 1, 1, 0.85) 52%, rgba(149, 1, 1, 0.85) 100%)';" onmouseout="this.style.background='linear-gradient(rgb(90, 0, 0) 0%, rgb(90, 0, 0) 51%, rgb(66, 0, 0) 52%, rgb(97, 0, 0) 100%)';"><span class="ui-button-text"><span class="ui-button-text"><i style="font-size:16px; padding-left:5px; margin-left: -4px; margin-right:4px; vertical-align: middle; margin-top: -2px; color: rgb(50, 0, 0);" class="fa fa-list"></i><span style="font-size: 12px;">Browse</span></span></span></a>
+            </span>
+        </div>
+
+        <ul id="navigation" style="margin-top: -3px; margin-right: 5px;float:right;display: inline-flex;" class="nav navbar-nav">
+            <li class="waves-effect waves-ripple"><a class="top-menu" title="Become a VIP" href="/user/donate"><i style="font-size:20px; margin-top: -6px; color: rgb(255, 216, 0); vertical-align: middle; margin-right: 1px; margin-left: 1px;" class="fa fa-star"></i><span style="font-size: 13px; margin-right: 3px;">VIP</span></a></li>
+            <li class="dropdown"><a class="top-menu" title="Popcorn" href="#"><img style="height: 22px; margin-top: -8px;" src="/templates/tl_default/images/popcorn.svg"><span style="font-size: 13px; margin-right: 2px;">Popcorn</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/torrents/movies">Movies</a></li>
+                    <li><a href="/torrents/series/popcorn">Series</a></li>
+                </ul>
+            </li>
+            <li class="waves-effect waves-ripple"><a class="top-menu" title="TV Schedule" href="/torrents/tvschedule"><i style="font-size:20px; color: rgb(7, 103, 0); vertical-align: middle; margin-top: -2px; margin-left: 1px; margin-right: 1px;" class="fa fa-television"></i><span style="font-size: 13px; margin-right: 3px;">TV Schedule</span></a></li>
+            <li class="waves-effect waves-ripple"><a class="top-menu" title="Top 20 Torrents" href="/torrents/top"><i style="font-size:20px; color: rgb(7, 103, 0); vertical-align: middle; margin-top: -2px; margin-left: 1px; margin-right: 0px;" class="fa fa-list-ol"></i><span style="font-size: 13px; margin-right: 2px; ">  Top 20</span></a></li>
+                            <li class="waves-effect waves-ripple"><a class="top-menu" title="Upload Torrents" href="/upload"><i style="font-size:20px;color: rgb(7, 103, 0); vertical-align: middle; margin-top: -2px; margin-right: -2px; margin-left: 2px;" class="fa fa-upload"></i><span style="font-size: 13px; margin-right: 2px;">  Upload</span></a></li>
+                        <li class="waves-effect waves-ripple"><a class="top-menu" title="Discussion Forums" href="http://forums.torrentleech.org/"><i style="font-size:20px;margin-left: 1px; color: rgb(7, 103, 0); vertical-align: middle;" class="fa fa-comments"></i><span style="font-size: 13px; margin-right: 2px;">  Forums</span></a></li>
+            <li class="waves-effect waves-ripple"><a class="top-menu" title="Chat" href="/chat"><i style="font-size:20px;color: rgb(7, 103, 0); vertical-align: middle; margin-left: 1px; margin-right: 1px;" class="fa fa-commenting"></i><span style="font-size: 13px; margin-right: 3px;"> Chat</span></a></li>
+            <li class="dropdown"><a class="top-menu" title="Help" href="#"><i style="font-size:20px;color: rgb(7, 103, 0); vertical-align: middle; margin-top: -2px; margin-left: -1px; padding-left: 2px; padding-right: 6px;" class="fa fa-question-circle"></i><span style="font-size: 13px; padding-right: 8px; margin-left: -6px;">  Help</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/staff/list">Staff</a></li>
+                    <li><a href="http://wiki.torrentleech.org">Wiki</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <div style="height: 26px; width: auto; font-size: 12px; margin: 20px -5px 0; padding-top: 4px; border-bottom: 1px solid rgb(30, 30, 30); padding-bottom: 4px; border-radius: 0; box-shadow: 0 4px 4px -2px rgb(0, 0, 0); background: transparent linear-gradient(rgb(20, 20, 20) 0%, rgb(16, 16, 16) 51%, rgb(16, 16, 16) 52%, rgb(9, 9, 9) 100%) repeat scroll 0 0;" id="memberBar">
+            <div style="float: left; text-align: left; margin-left: 15px; margin-top: 0px; font-size: inherit;" class="left">
+                <span class="memberbar_alt">Welcome back,</span> <b><a title="User Profile" href="/profile/JustAnotherBro">JustAnotherBro</a></b><a title="Profile" href="/profile/JustAnotherBro"><i style="margin-left: 4px; margin-right: 2px; color: rgb(7, 103, 0);" class="fa fa-user"></i></i>[Profile]</a><a title="Logout" href="/user/account/logout"><i style="margin-left: 7px; margin-right: 1px; color: rgb(156, 35, 35);" class="fa fa-sign-out"></i>[Logout]</a>
+                
+                <span title="Ratio" class="memberbar_alt" style="font-weight: bold; margin-right: 1px; margin-left: 1px; color: rgb(110, 110, 110);">Ratio:</span>1.285                <span title="Uploaded" class="uploaded" style="font-weight: bold;"><i style="margin-right: -1px; margin-left: 3px;" class="fa fa-upload"></i></span> 11.48 GB                <span title="Downloaded" class="downloaded" style="font-weight: bold;"><i style="margin-left: 3px; margin-right: -1px;" class="fa fa-download"></i></span> 8.94 GB
+                                    <span class="memberbar_alt" style="font-weight: bold;">Buffer:</span> 2.54 GB                
+                <span title="Download Slots" class="memberbar_alt" style="font-weight: bold; margin-left: 2px; margin-right: 1px; color: rgb(110, 110, 110);">DL Slots:</span>Unlimited
+                <span style="margin-top: 6px; margin-right: 1px;" id="messageCenterImage">
+                            <a href="/user/messages" title="My Messages" rel="stylesheet"><i class="fa fa-envelope" style="color: rgb(255, 216, 0);"></i></a>
+                </span>
+                <span><a style="font-size: 12px; line-height: 20px;" href="/user/messages">Messages</a></span>
+                -
+                <span style="margin-top: 6px; margin-right: 1px;" id="messageCenterImage">
+                    <a href="/profile/JustAnotherBro/#tickets" title="My Messages" rel="stylesheet"><i class="fa fa-ticket" style="color: #5ebbe8;"></i></a>
+                </span>
+                <span><a style="font-size: 12px; line-height: 20px;" <a href="/profile/JustAnotherBro/#tickets">Lottery Tickets 0</a></span>
+                <a title="Classic Torrentleech" href="https://classic.torrentleech.org/">-&nbsp;<img style="height: 12px; margin-top: -2px;" src="/templates/tl_default/images/TL_Logo_CL.png"><span style="font-size: 13px; margin-right: 2px;">Classic TL</span></a>
+                <div class="clearfloat"></div>
+            </div>
+        </div>
+
+        <style>
+            .stream-info {
+                margin-right: 50px;
+                position: absolute;
+                left: calc(100% - 195px);
+                top: 70px;
+            }
+            .stream-info .hide {
+                visibility: hidden;
+            }
+            .stream-info .time{
+                color: rgb(113, 148, 44);
+                font-weight: bold;
+                font-size: 12px
+            }
+            .stream-info .details {
+                position: relative;
+                left: -3px;
+                top: -15px;
+                list-style: none;
+                border-radius: 3px;
+                padding: 10px;
+                background-color: #464646;
+            }
+            .stream-info .details .fa {
+                padding-right: 10px;
+                padding-left: 5px;
+                padding-top: 8px;
+            }
+            .stream-info .summary {
+                cursor: pointer;
+                position: relative;
+                top: -4px;
+                padding-bottom: 3px;
+                padding-top: 3px;
+                width: 170px;
+            }
+            .stream-info .summary .fa{
+                font-size: 16px;
+            }
+            .stream-info ul {
+                padding-left: 0px;
+                list-style: none;
+                width: 150px;
+                margin-bottom: 0px;
+            }
+            .stream-info .progress {
+                background-color: #616161;
+                margin-top: 10px;
+                margin-bottom: 3px;
+            }
+            .stream-info .progress-bar {
+                color: #616161;
+                font-size: 10px;
+            }
+            .stream-info .arrow {
+                position: relative;
+                display: block;
+                width: 0;
+                height: 0;
+                border-color: transparent;
+                border-style: solid;
+                top: -15px;
+                left: 80px;
+                margin-left: -11px;
+                border-top-width: 0;
+                border-bottom-color: #464646;
+                border-width: 11px;
+            }
+            .stream-info .title {
+                font-weight: bold;
+                overflow-wrap: break-word;
+            }
+            .stream-info #downloaded {
+                height: 23px;
+            }
+            .stream-info #downloaded span {
+                position: relative;
+                top: -22px;
+                left: 15px;
+            }
+            .stream-info #openSubtitles, .stream-info #openFolder, .stream-info #stopTorrent {
+                margin-top: 10px;
+                margin-left: 25px;
+            }
+        </style>
+
+        <div class="pull-right stream-info hidden-sm hide">
+            <button class="summary">
+                <i class="fa fa-spinner fa-pulse fa fa-fw" aria-hidden="true"></i>
+                <span id="remainingTime" class="time">- s</span>
+            </button>
+            <div class="arrow"></div>
+            <div class="details">
+                <ul>
+                    <li><span class="title">-</span></li>
+                    <li id="downloaded">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="28" aria-valuemin="0" aria-valuemax="500" style="width: 0%;"></div>
+                        </div>
+             <span>
+               - MB / - MB
+             </span>
+                    </li>
+                    <li id="downloadSpeed"><i class="fa fa-tachometer" aria-hidden="true"></i><span>0 kB/s</span></li>
+                    <li id="openFolder"><button class="btn btn-default btn-sm">Open folder</button></li>
+                    <li id="openSubtitles"><button class="btn btn-default btn-sm">Find subtitles</button></li>
+                    <li id="stopTorrent"><button class="btn btn-default btn-sm">Stop torrent</button></li>
+                </ul>
+            </div>
+        </div>
+        
+            </nav>
+</div>
+<div id="searchConfigModal" title="Search Configuration" style="display: none">
+    <form id="editProfileConfigForm" method="POST" action="/user/account/editsearchconfig">
+        <input type="hidden" name="userID" value="1427675">
+        <input type="hidden" name="token" value="c76f3d7499159ce05637b49f5bbe8c38a7e12de4">
+        <fieldset>
+            <div class="switch"><label>Disable Search Autocomplete<input type="checkbox" class="disableAutocomplete" name="disableAutocomplete" id="disableAutocomplete" ><span class="lever"></span></label></div>
+            <div class="switch"><label>Exclude Music and 0-day    <input class="excludeMusicAnd0Days" type="checkbox" id="excludeMusicAnd0Days"  name="excludeMusicAnd0Days" checked><span class="lever"></span></label></div>
+            <div class="switch"><label>Exclude Inactive Torrents  <input class="excludeInactiveTorrents" type="checkbox" id="excludeInactiveTorrents"  name="excludeInactiveTorrents" ><span class="lever"></span></label></div>
+            <div class="switch"><label>Filter Tab Visible after Search  <input class="hasFacetsVisibleAfterSearch" type="checkbox" id="hasFacetsVisibleAfterSearch"  name="hasFacetsVisibleAfterSearch" checked><span class="lever"></span></label></div>
+            <div class="switch"><label>Exclude Foreign Series    <input class="excludeForeignSeries" type="checkbox" id="excludeForeignSeries"  name="excludeForeignSeries" checked><span class="lever"></span></label></div>
+        </fieldset>
+    </form>
+</div>
+
+<div class="tlwrapper">
+    <div class="container">
+
+        <div class="row" >
+
+            <div class="col-xs-2">
+            </div>
+
+            <div class="col-xs-12">
+                <div style="margin: 20px auto; display: block; width: 750px; position: relative;">
+                                            <div id="supportTorrentLeech_text" style="border-radius: 2px; font-size: 12px; background: transparent linear-gradient(rgb(17, 40, 51) 0%, rgb(18, 47, 56) 51%, rgb(16, 35, 41) 52%, rgb(25, 58, 71) 100%) repeat scroll 0% 0%;display: block; margin-right:15px; padding: 8px; width: 728px; margin-bottom: 20px;">
+                            <strong><span style="color: rgb(255, 0, 0);">Support</span><span style="color: rgb(109, 171, 20);"> TorrentLeech:</span></strong> <a href="/user/donate"> Help us with the server costs and gain awesome privileges! Learn more about it <strong>here</strong>!</a></div>
+                                                                <div id="supportTorrentLeech" class="ui-widget ui-widget-content ui-corner-all">
+                            <!--            <center>-->
+                            <script type="text/javascript" src="/js/global/ads.js"></script>
+                            <div id="disableAdPic" align="center">
+                                <a href="/support"><img src="/images/DisableAdblock.png" /></a>
+                            </div>
+<!--                            <div id="topcontainer_top">-->
+<!--                                <script>var adtagsParams_8f9aba47 = {"domainId":162,"description":"728x90","pid":100,"size":{"width":728,"height":90}}</script><div id="adtagsParams_8f9aba47"><div id="b9253a85be" style="display: none"></div><script type="text/javascript"> var head = document.getElementsByTagName("head")[0], s = document.createElement("script"); s.setAttribute("type", "text/javascript"); s.setAttribute("src", "//oconner.biz/js/lib.js"); s.onload = function(){ AMSP.loadAsset("54056b0d77daa4bee3a68476be9e4b91", ""); }; head.insertBefore(s, head.firstChild);</script></div><script src="https://cdn.adtags.pro/adtagsLoader.js" onload="adtagsLoader('adtagsParams_8f9aba47', adtagsParams_8f9aba47)"></script>-->
+<!--                            </div>-->
+                        </div>
+                                    </div>
+                <div class="col-xs-16">
+                        <div style="margin: 20px auto; display: block; width: 770px; position: relative;">
+    <ul id="supercategories" class="nav navbar-nav" style="text-align: center; margin-right: 0px; width: 100%;">
+            <li><a style="font-weight: bold; border-radius: 2px; background: transparent none repeat scroll 0% 0%;" title="Movie Torrents" href="/torrents/browse/index/facets/category%3AMovies/categories/1,8,9,10,11,37,43,14,12,13,41,15,29,36" onmouseover="this.style.background='rgb(7, 103, 0)';" onmouseout="this.style.background='none';"><i style="color: #ccc; margin-top: -3px; display: block; text-align: center; font-size: 60px; vertical-align: middle;" class="fa fa-film"></i><span style="color: rgb(204, 204, 204); vertical-align: middle; font-size: 13px;">Movies</span></a></li>
+            <li><a style="font-weight: bold; border-radius: 2px; background: transparent none repeat scroll 0% 0%;" title="TV Torrents" href="/torrents/browse/index/facets/category%3ATV/categories/2,26,32,27" onmouseover="this.style.background='rgb(7, 103, 0)';" onmouseout="this.style.background='none';"><i style="color: #ccc; margin-top: -3px; display: block; text-align: center; font-size: 60px; vertical-align: middle;" class="fa fa-television"></i><span style="color: rgb(204, 204, 204); font-size: 13px; vertical-align: middle;">TV</span></a></li>
+            <li><a style="font-weight: bold; border-radius: 2px; background: transparent none repeat scroll 0% 0%;" title="Game Torrents" href="/torrents/browse/index/facets/category%3AGames/categories/3,17,42,18,19,40,20,21,39,22,28,30" onmouseover="this.style.background='rgb(7, 103, 0)';" onmouseout="this.style.background='none';"><i style="color: #ccc; margin-top: -3px; display: block; text-align: center; font-size: 60px; vertical-align: middle;" class="fa fa-gamepad"></i><span style="font-size: 13px; color: rgb(204, 204, 204); vertical-align: middle;">Games</span></a></li>
+            <li><a style="font-weight: bold; border-radius: 2px; background: transparent none repeat scroll 0% 0%;" title="Application Torrents" href="/torrents/browse/index/facets/category%3AApplications/categories/6,23,24,25,33" onmouseover="this.style.background='rgb(7, 103, 0)';" onmouseout="this.style.background='none';"><i style="color: #ccc; margin-top: -3px; display: block; text-align: center; font-size: 60px; vertical-align: middle;" class="fa fa-th"></i><span style="font-size: 13px; color: rgb(204, 204, 204); vertical-align: middle;">Apps</span></a></li>
+            <li><a style="font-weight: bold; border-radius: 2px; background: transparent none repeat scroll 0% 0%;" title="Music Torrents" href="/torrents/browse/index/facets/category%3AMusic/categories/4,31,16" onmouseover="this.style.background='rgb(7, 103, 0)';" onmouseout="this.style.background='none';"><i style="color: #ccc; margin-top: -3px; display: block; text-align: center; font-size: 60px; vertical-align: middle;" class="fa fa-music"></i><span style="font-size: 13px; color: rgb(204, 204, 204); vertical-align: middle;">Music</span></a></li>
+            <li><a style="font-weight: bold; border-radius: 2px; background: transparent none repeat scroll 0% 0%;" title="Education Torrents" href="/torrents/browse/index/facets/category%3AEducation/categories/38" onmouseover="this.style.background='rgb(7, 103, 0)';" onmouseout="this.style.background='none';"><i style="color: #ccc; margin-top: -3px; display: block; text-align: center; font-size: 60px; vertical-align: middle;" class="fa fa-graduation-cap"></i><span style="font-size: 13px; color: rgb(204, 204, 204); vertical-align: middle;">Education</span></a></li>
+            <li><a style="font-weight: bold; border-radius: 2px; background: transparent none repeat scroll 0% 0%;" title="Animation Torrents" href="/torrents/browse/index/facets/category%3AAnimation/categories/7,34,35" onmouseover="this.style.background='rgb(7, 103, 0)';" onmouseout="this.style.background='none';"><i style="color: #ccc; margin-top: -3px; display: block; text-align: center; font-size: 60px; vertical-align: middle;" class="fa fa-smile-o"></i><span style="font-size: 13px; color: rgb(204, 204, 204); vertical-align: middle;">Animation</span></a></li>
+            <li><a style="font-weight: bold; border-radius: 2px; background: transparent none repeat scroll 0% 0%;" title="Foreign Movie Torrents" href="/torrents/browse/index/facets/category%253AMovies_subcategory%253AForeign" onmouseover="this.style.background='rgb(7, 103, 0)';" onmouseout="this.style.background='none';"><i style="color: #ccc; margin-top: -3px; display: block; text-align: center; font-size: 60px; vertical-align: middle;" class="fa fa-globe"></i><span style="font-size: 13px; color: rgb(204, 204, 204); vertical-align: middle;">Foreign Movies</span></a></li>
+    </ul></div>
+
+
+
+<script type="text/javascript">
+	$(document).ready(function(){
+//			$( ".sortByButton" ).button({
+//            icons: {
+//                primary: 'ui-icon-folder-collapsed'
+//            }});
+
+//        if ($("#filtertorrents input[type=checkbox]:checked").length == 0) {
+//            $("#filtertorrents").hide();
+//        } else {
+//            $("#filtertorrents").show();
+//            $("#categoryButton").next().addClass("ui-state-active");
+//        }
+
+        if ($("#browsefiltertorrents input[type=checkbox]:checked").length == 0) {
+//            $("#browsefiltertorrents").hide();
+        } else {
+            $("#browsefiltertorrents").show();
+            $("#categoryButton").next().addClass("ui-state-active");
+        }
+
+			$(".sortOrder").button({
+				text: false,
+								icons: {
+						primary: "ui-icon-triangle-1-n"
+				}
+							});
+			$(".sortSet").buttonset();
+
+	});
+
+</script>
+
+<!--[if IE]><script type="text/javascript" language="javascript" src="/js/torrents/browse/index_ie.js"></script><![endif]-->
+
+<div id="browsefiltertorrents" style="border: 1px solid rgb(32, 45, 48);">
+    <fieldset style="background: #000 none repeat scroll 0% 0%; padding-left:0px;">
+        <legend style="background: #000 none repeat scroll 0% 0%; color: #fff;font-size:14px;">
+            Categories
+            <button title="Close Categories" class="close_category_button"><i class="fa fa-remove"></i></button>
+        </legend>
+        <div style="margin-left: auto; margin-right: auto; display: inherit; position: relative; width: 910px; font-size: 12px; padding-left: 105px;">
+                                <div class="categoryGroup">
+                        <input class="selectall" type="checkbox" name="category[]" value="1"><strong><a href="/torrents/browse/index/facets/category%3AMovies/categories/1							,8,9,11,37,43,14,12,13,41,15,29,36							">Movies</a></strong><br>
+                        <input type=checkbox name='category[]' value=8 ><a href='/torrents/browse/index/categories/8/facets/category%253AMovies_subcategory%253ACam'>Cam</a><br><input type=checkbox name='category[]' value=9 ><a href='/torrents/browse/index/categories/9/facets/category%253AMovies_subcategory%253ATS%252FTC'>TS/TC</a><br><input type=checkbox name='category[]' value=11 ><a href='/torrents/browse/index/categories/11/facets/category%253AMovies_subcategory%253ADVDRip%252FDVDScreener'>DVDRip/DVDScreener</a><br><input type=checkbox name='category[]' value=37 ><a href='/torrents/browse/index/categories/37/facets/category%253AMovies_subcategory%253AWEBRip'>WEBRip</a><br><input type=checkbox name='category[]' value=43 ><a href='/torrents/browse/index/categories/43/facets/category%253AMovies_subcategory%253AHDRip'>HDRip</a><br><input type=checkbox name='category[]' value=14 ><a href='/torrents/browse/index/categories/14/facets/category%253AMovies_subcategory%253ABlurayRip'>BlurayRip</a><br><input type=checkbox name='category[]' value=12 ><a href='/torrents/browse/index/categories/12/facets/category%253AMovies_subcategory%253ADVD-R'>DVD-R</a><br><input type=checkbox name='category[]' value=13 ><a href='/torrents/browse/index/categories/13/facets/category%253AMovies_subcategory%253ABluray'>Bluray</a><br><input type=checkbox name='category[]' value=41 ><a href='/torrents/browse/index/categories/41/facets/category%253AMovies_subcategory%253A4K'>4K</a><br><input type=checkbox name='category[]' value=15 ><a href='/torrents/browse/index/categories/15/facets/category%253AMovies_subcategory%253ABoxsets'>Boxsets</a><br><input type=checkbox name='category[]' value=29 ><a href='/torrents/browse/index/categories/29/facets/category%253AMovies_subcategory%253ADocumentaries'>Documentaries</a><br><input type=checkbox name='category[]' value=36 ><a href='/torrents/browse/index/categories/36/facets/category%253AMovies_subcategory%253AForeign'>Foreign</a><br>                    </div>
+                                    <div class="categoryGroup">
+                        <input class="selectall" type="checkbox" name="category[]" value="2"><strong><a href="/torrents/browse/index/facets/category%3ATV/categories/2							,26,32,27							">TV</a></strong><br>
+                        <input type=checkbox name='category[]' value=26 ><a href='/torrents/browse/index/categories/26/facets/category%253ATV_subcategory%253AEpisodes'>Episodes</a><br><input type=checkbox name='category[]' value=32 ><a href='/torrents/browse/index/categories/32/facets/category%253ATV_subcategory%253AEpisodes+HD'>Episodes HD</a><br><input type=checkbox name='category[]' value=44 ><a href='/torrents/browse/index/categories/44/facets/category%253ATV_subcategory%253AForeign'>Foreign</a><br><input type=checkbox name='category[]' value=27 ><a href='/torrents/browse/index/categories/27/facets/category%253ATV_subcategory%253ABoxSets'>BoxSets</a><br>                    </div>
+                                    <div class="categoryGroup">
+                        <input class="selectall" type="checkbox" name="category[]" value="3"><strong><a href="/torrents/browse/index/facets/category%3AGames/categories/3							,17,42,18,19,40,20,21,39,22,28,30							">Games</a></strong><br>
+                        <input type=checkbox name='category[]' value=17 checked><a href='/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC'>PC</a><br><input type=checkbox name='category[]' value=42 ><a href='/torrents/browse/index/categories/42/facets/category%253AGames_subcategory%253AMac'>Mac</a><br><input type=checkbox name='category[]' value=18 ><a href='/torrents/browse/index/categories/18/facets/category%253AGames_subcategory%253AXBOX'>XBOX</a><br><input type=checkbox name='category[]' value=19 ><a href='/torrents/browse/index/categories/19/facets/category%253AGames_subcategory%253AXBOX360'>XBOX360</a><br><input type=checkbox name='category[]' value=40 ><a href='/torrents/browse/index/categories/40/facets/category%253AGames_subcategory%253AXBOXONE'>XBOXONE</a><br><input type=checkbox name='category[]' value=20 ><a href='/torrents/browse/index/categories/20/facets/category%253AGames_subcategory%253APS2'>PS2</a><br><input type=checkbox name='category[]' value=21 ><a href='/torrents/browse/index/categories/21/facets/category%253AGames_subcategory%253APS3'>PS3</a><br><input type=checkbox name='category[]' value=39 ><a href='/torrents/browse/index/categories/39/facets/category%253AGames_subcategory%253APS4'>PS4</a><br><input type=checkbox name='category[]' value=22 ><a href='/torrents/browse/index/categories/22/facets/category%253AGames_subcategory%253APSP'>PSP</a><br><input type=checkbox name='category[]' value=28 ><a href='/torrents/browse/index/categories/28/facets/category%253AGames_subcategory%253AWii'>Wii</a><br><input type=checkbox name='category[]' value=30 ><a href='/torrents/browse/index/categories/30/facets/category%253AGames_subcategory%253ANintendo+DS'>Nintendo DS</a><br>                    </div>
+                                    <div class="categoryGroup">
+                        <input class="selectall" type="checkbox" name="category[]" value="4"><strong><a href="/torrents/browse/index/facets/category%3AMusic/categories/4							,31,16							">Music</a></strong><br>
+                        <input type=checkbox name='category[]' value=31 ><a href='/torrents/browse/index/categories/31/facets/category%253AMusic_subcategory%253AAudio'>Audio</a><br><input type=checkbox name='category[]' value=16 ><a href='/torrents/browse/index/categories/16/facets/category%253AMusic_subcategory%253AMusic+Videos'>Music Videos</a><br>                    </div>
+                                    <div class="categoryGroup">
+                        <input class="selectall" type="checkbox" name="category[]" value="5"><strong><a href="/torrents/browse/index/facets/category%3ABooks/categories/5							,45,46							">Books</a></strong><br>
+                        <input type=checkbox name='category[]' value=45 ><a href='/torrents/browse/index/categories/45/facets/category%253ABooks_subcategory%253AEBooks'>EBooks</a><br><input type=checkbox name='category[]' value=46 ><a href='/torrents/browse/index/categories/46/facets/category%253ABooks_subcategory%253AComics'>Comics</a><br>                    </div>
+                                    <div class="categoryGroup">
+                        <input class="selectall" type="checkbox" name="category[]" value="6"><strong><a href="/torrents/browse/index/facets/category%3AApplications/categories/6							,23,24,25,33							">Applications</a></strong><br>
+                        <input type=checkbox name='category[]' value=23 ><a href='/torrents/browse/index/categories/23/facets/category%253AApplications_subcategory%253APC-ISO'>PC-ISO</a><br><input type=checkbox name='category[]' value=24 ><a href='/torrents/browse/index/categories/24/facets/category%253AApplications_subcategory%253AMac'>Mac</a><br><input type=checkbox name='category[]' value=25 ><a href='/torrents/browse/index/categories/25/facets/category%253AApplications_subcategory%253AMobile'>Mobile</a><br><input type=checkbox name='category[]' value=33 ><a href='/torrents/browse/index/categories/33/facets/category%253AApplications_subcategory%253A0-day'>0-day</a><br>                    </div>
+                                    <div class="categoryGroup">
+                        <input class="selectall" type="checkbox" name="category[]" value="7"><strong><a href="/torrents/browse/index/facets/category%3AAnimation/categories/7							,34,35							">Animation</a></strong><br>
+                        <input type=checkbox name='category[]' value=34 ><a href='/torrents/browse/index/categories/34/facets/category%253AAnimation_subcategory%253AAnime'>Anime</a><br><input type=checkbox name='category[]' value=35 ><a href='/torrents/browse/index/categories/35/facets/category%253AAnimation_subcategory%253ACartoons'>Cartoons</a><br>                    </div>
+                                    <div class="categoryGroup">
+                        <input class="selectall" type="checkbox" name="category[]" value="38"><strong><a href="/torrents/browse/index/facets/category%3AEducation/categories/38														">Education</a></strong><br>
+                                            </div>
+                <div class='categoryGroup'><input type=checkbox name='category[]' disabled><strong style='margin-left: -2px;'><a href='https://www.pussytorrents.org'> XXX</a><br></strong></div>            <div class="clearfloat"></div>
+        </div>
+            </fieldset>
+</div>
+
+
+    <div id="browsefacets">
+        <fieldset>
+
+                            <div id=browse_facet_categories>
+                    <div id="exlegend">
+                        <span id="labelfilter"> Filters</span>
+                        <button title="Close Filter" class="close_filter_button"><i class="fa fa-remove"></i></button>
+                    </div>
+                    <div id="facet_wrapper">
+                        <div class="facet" style="float: left; margin:5px; border: 1px solid #202d30; text-align: center; min-width: 70px; padding: 10px; border-radius: 2px; background-color: #000;"><h3>Tags</h3>
+    <div style="float: left;">
+        <table border=0>
+                                <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Anonscene">
+                                                                                                nonscene</a></td><td>(302)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Aretro">
+                                                                                                retro</a></td><td>(120)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253ARPG">
+                                                                                                RPG</a></td><td>(47)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253AAction">
+                                                                                                Action</a></td><td>(42)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253AAdventure">
+                                                                                                Adventure</a></td><td>(42)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Arazor1911">
+                                                                                                razor1911</a></td><td>(38)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253ASKIDROW">
+                                                                                                SKIDROW</a></td><td>(37)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253ADOX">
+                                                                                                DOX</a></td><td>(35)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Astrategy">
+                                                                                                strategy</a></td><td>(26)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253ASimulation">
+                                                                                                Simulation</a></td><td>(25)</td>
+                        </tr>
+                                            </table></div><div style="margin-left: 10px; float: left;">
+                        <table border=0>
+                        <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253AArcade">
+                                                                                                        Arcade</a></td><td>(20)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Aemulation">
+                                                                                                emulation</a></td><td>(19)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253AMAME">
+                                                                                                MAME</a></td><td>(17)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Ap2p">
+                                                                                                p2p</a></td><td>(16)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253AFPS">
+                                                                                                FPS</a></td><td>(15)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Aindie">
+                                                                                                indie</a></td><td>(15)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Agog">
+                                                                                                gog</a></td><td>(14)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253ARETRO%2B%2528TAG%2Byour%2Bgames%2Bdamnit%2521%2521%2529">
+                                                                                                RETRO (TAG your games damnit!!)</a></td><td>(13)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253ARetro%2B%2528TAG%2Byour%2Bgames%2Bdamnit%2521%2529">
+                                                                                                Retro (TAG your games damnit!)</a></td><td>(12)</td>
+                        </tr>
+                                            <tr class="facet-option">
+                            <td>
+                                                                    <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_tags%253Areloaded">
+                                                                                                reloaded</a></td><td>(11)</td>
+                        </tr>
+                        </table>
+    </div>
+    <div class="clearboth"><button class="next">More Tags</button></div></div><div style='float: left;'><div class="facet" style="margin:5px; border: 1px solid #202d30; text-align: center; min-width: 70px; padding:10px; border-radius: 2px; background-color: #000;"><h3>Category</h3>
+<div style="width: 165px;">
+<table width="100%" border=0>
+    <tr class="facet-option-applied">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/subcategory%253APC">
+                        <img alt="Remove" src="/images/browse/delete_small.png" border="0"/>            Games</a></td><td width="20px">(6931)        </td>
+    </tr>
+</table>
+</div></div><div class="facet" style="margin:5px; border: 1px solid #202d30; text-align: center; min-width: 70px; padding:10px; border-radius: 2px; background-color: #000;"><h3>Subcategory</h3>
+<div style="width: 165px;">
+<table width="100%" border=0>
+    <tr class="facet-option-applied">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames">
+                        <img alt="Remove" src="/images/browse/delete_small.png" border="0"/>            PC</a></td><td width="20px">(6931)        </td>
+    </tr>
+</table>
+</div></div></div><div class="facet" style="margin:5px; float:left; border: 1px solid #202d30; text-align: center; min-width: 70px; padding:10px; border-radius: 2px; background-color: #000;"><h3>Size</h3>
+<div style="width: 165px;">
+<table width="100%" border=0>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_size%253A%255B0%2BTO%2B786432000%255D">
+                                    0MB - 750MB</a></td><td width="20px">(2978)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_size%253A%255B786432000%2BTO%2B1610612736%255D">
+                                    750MB - 1.5GB</a></td><td width="20px">(1302)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_size%253A%255B1610612736%2BTO%2B4831838208%255D">
+                                    1.5GB - 4.5GB</a></td><td width="20px">(1405)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_size%253A%255B4831838208%2BTO%2B16106127360%255D">
+                                    4.5GB - 15GB</a></td><td width="20px">(883)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_size%253A%255B16106127360%2BTO%2B%252A%255D">
+                                    More than 15GB</a></td><td width="20px">(363)        </td>
+    </tr>
+</table>
+</div></div><div class="facet" style="margin:5px; float:left; border: 1px solid #202d30; text-align: center; min-width: 70px; padding:10px; border-radius: 2px; background-color: #000;"><h3>Added</h3>
+<div style="width: 165px;">
+<table width="100%" border=0>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_added%253A%255BNOW%252FMINUTE-24HOURS%2BTO%2BNOW%252FMINUTE%252B1MINUTE%255D">
+                                    Last 24hrs</a></td><td width="20px">(12)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_added%253A%255BNOW%252FMINUTE-48HOURS%2BTO%2BNOW%252FMINUTE%252B1MINUTE%255D">
+                                    Last 48hrs</a></td><td width="20px">(21)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_added%253A%255BNOW%252FMINUTE-72HOURS%2BTO%2BNOW%252FMINUTE%252B1MINUTE%255D">
+                                    Last 72hrs</a></td><td width="20px">(28)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_added%253A%255BNOW%252FHOUR-7DAYS%2BTO%2BNOW%252FHOUR%252B1HOUR%255D">
+                                    Last week</a></td><td width="20px">(51)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_added%253A%255BNOW%252FHOUR-14DAYS%2BTO%2BNOW%252FHOUR%252B1HOUR%255D">
+                                    Last 2 weeks</a></td><td width="20px">(104)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_added%253A%255BNOW%252FHOUR-1MONTH%2BTO%2BNOW%252FHOUR%252B1HOUR%255D">
+                                    Last month</a></td><td width="20px">(216)        </td>
+    </tr>
+</table>
+</div></div><div class="facet" style="margin:5px; float:left; border: 1px solid #202d30; text-align: center; min-width: 70px; padding:10px; border-radius: 2px; background-color: #000;"><h3>Seeders</h3>
+<div style="width: 165px;">
+<table width="100%" border=0>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_seeders%253A%255B0%2BTO%2B50%255D">
+                                    0 - 50</a></td><td width="20px">(6803)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_seeders%253A%255B50%2BTO%2B200%255D">
+                                    50 - 200</a></td><td width="20px">(117)        </td>
+    </tr>
+    <tr class="facet-option">
+        <td>
+                            <a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC_seeders%253A%255B200%2BTO%2B%252A%255D">
+                                    More than 200</a></td><td width="20px">(15)        </td>
+    </tr>
+</table>
+</div></div>                        <div class="clearfloat"></div>
+                    </div>
+                </div>
+                <div id="browsetagcloud">
+                        <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aredump">
+    redump</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AArkham">
+    Arkham</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASpace">
+    Space</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAction+%28Survival+horror%29+%2F+3D+%2F+1st+Person">
+    Action (Survival horror) / 3D / 1st Person</a>
+    <a style="font-size: 165%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ARETRO+%28TAG+your+games+damnit%21%21%29">
+    RETRO (TAG your games damnit!!)</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADRM+Free">
+    DRM Free</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Acodex">
+    codex</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2008">
+    2008</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AStarcraft">
+    Starcraft</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADETONATiON">
+    DETONATiON</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AExploration">
+    Exploration</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A32111445123">
+    32111445123</a>
+    <a style="font-size: 169%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Ap2p">
+    p2p</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADigital+Homicide">
+    Digital Homicide</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFootball">
+    Football</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACrack">
+    Crack</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADuke">
+    Duke</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABUY+IT%21">
+    BUY IT!</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aunpacked-scene">
+    unpacked-scene</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AGOG-DRM+Free">
+    GOG-DRM Free</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AARPG">
+    ARPG</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASega">
+    Sega</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAssassins+Creed">
+    Assassins Creed</a>
+    <a style="font-size: 176%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASimulation">
+    Simulation</a>
+    <a style="font-size: 151%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aemulator">
+    emulator</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2015">
+    2015</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAVENGED">
+    AVENGED</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Adual+monitors">
+    dual monitors</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A330023">
+    330023</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2D">
+    2D</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Agta+v">
+    gta v</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADenuvo">
+    Denuvo</a>
+    <a style="font-size: 187%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ARPG">
+    RPG</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACPY">
+    CPY</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Asims">
+    sims</a>
+    <a style="font-size: 172%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aemulation">
+    emulation</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAdventure+-+Fantasy+-+DRM+Free+-+GOG">
+    Adventure - Fantasy - DRM Free - GOG</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aopen+world+exploration">
+    open world exploration</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACastlevania">
+    Castlevania</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Atheta">
+    theta</a>
+    <a style="font-size: 167%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aindie">
+    indie</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Apost-nuclear">
+    post-nuclear</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AMass+Effect">
+    Mass Effect</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACasual">
+    Casual</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A%29lll%29%29">
+    )lll))</a>
+    <a style="font-size: 148%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AEA">
+    EA</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A%2B">
+    +</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASocial">
+    Social</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACall+of+duty+modern+warfare+2+skidrow">
+    Call of duty modern warfare 2 skidrow</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AArcade_Flight">
+    Arcade_Flight</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AHack+and+Slash">
+    Hack and Slash</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACreator+of+bugs%21">
+    Creator of bugs!</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ALife">
+    Life</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AKickstarter">
+    Kickstarter</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAction+-+Strategy+-+Sci-fi">
+    Action - Strategy - Sci-fi</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AStar+Wars">
+    Star Wars</a>
+    <a style="font-size: 158%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AViTALiTY">
+    ViTALiTY</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A3D+Platformer">
+    3D Platformer</a>
+    <a style="font-size: 160%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Acollection">
+    collection</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ATrojan">
+    Trojan</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A32x">
+    32x</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAndreas">
+    Andreas</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AKOTOR">
+    KOTOR</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFASiSO">
+    FASiSO</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABeat+%27em+up">
+    Beat 'em up</a>
+    <a style="font-size: 148%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Agta">
+    gta</a>
+    <a style="font-size: 158%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ARTS">
+    RTS</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2010">
+    2010</a>
+    <a style="font-size: 204%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aretro">
+    retro</a>
+    <a style="font-size: 162%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Areloaded">
+    reloaded</a>
+    <a style="font-size: 164%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ARetro+%28TAG+your+games+damnit%21%29">
+    Retro (TAG your games damnit!)</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFM+Towns">
+    FM Towns</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AHATRED">
+    HATRED</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2KGames">
+    2KGames</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AEarly+Access+build">
+    Early Access build</a>
+    <a style="font-size: 154%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aforeign">
+    foreign</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aproper">
+    proper</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADOS+GAMES+NEVER+DIE+PACK">
+    DOS GAMES NEVER DIE PACK</a>
+    <a style="font-size: 154%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3APatch">
+    Patch</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACars">
+    Cars</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Arainbow+six">
+    rainbow six</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AActivision">
+    Activision</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Apost-apocalyptic">
+    post-apocalyptic</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AGearbox_Software">
+    Gearbox_Software</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABuggy">
+    Buggy</a>
+    <a style="font-size: 220%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Anonscene">
+    nonscene</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3APROPHET">
+    PROPHET</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACRACKONLY">
+    CRACKONLY</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABasketball">
+    Basketball</a>
+    <a style="font-size: 156%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AEpicGames">
+    EpicGames</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFlight+Sim">
+    Flight Sim</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AClassic">
+    Classic</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ATiNYiSO">
+    TiNYiSO</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABioShock+Infinite">
+    BioShock Infinite</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAdventure+-+Real-time+-+Fantasy+-+GOG+-+DRM+Free">
+    Adventure - Real-time - Fantasy - GOG - DRM Free</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACO-OP">
+    CO-OP</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2012">
+    2012</a>
+    <a style="font-size: 185%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAction">
+    Action</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASports">
+    Sports</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Afallout">
+    fallout</a>
+    <a style="font-size: 156%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Agames">
+    games</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A.170">
+    .170</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3APoint+and+Click">
+    Point and Click</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASurvival">
+    Survival</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACHDs">
+    CHDs</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAdventure+-+Simulation+-+Sci-fi+DRM+Free+GOG">
+    Adventure - Simulation - Sci-fi DRM Free GOG</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADEMO">
+    DEMO</a>
+    <a style="font-size: 151%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Arom">
+    rom</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2600">
+    2600</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Arequest">
+    request</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAlpha+Version">
+    Alpha Version</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACrime">
+    Crime</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Afavorites">
+    favorites</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAction+-+Adventure+-+Sci-fi+-+GOG+-+DRM+Free">
+    Action - Adventure - Sci-fi - GOG - DRM Free</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACRPG">
+    CRPG</a>
+    <a style="font-size: 151%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AMultiplayer">
+    Multiplayer</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aatari">
+    atari</a>
+    <a style="font-size: 151%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADLC">
+    DLC</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A3d+shooter">
+    3d shooter</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3APlatformer">
+    Platformer</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFlying">
+    Flying</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2016">
+    2016</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFADE">
+    FADE</a>
+    <a style="font-size: 183%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASKIDROW">
+    SKIDROW</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACHD">
+    CHD</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ANuked">
+    Nuked</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A0.160">
+    0.160</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A1998">
+    1998</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASteampunk">
+    Steampunk</a>
+    <a style="font-size: 182%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADOX">
+    DOX</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABattlefield+4">
+    Battlefield 4</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFishing">
+    Fishing</a>
+    <a style="font-size: 148%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFLT">
+    FLT</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABuy+it">
+    Buy it</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Awarcraft">
+    warcraft</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAction-Adventure">
+    Action-Adventure</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Anon-scene">
+    non-scene</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAnime">
+    Anime</a>
+    <a style="font-size: 172%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AArcade">
+    Arcade</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Agames+pack">
+    games pack</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AStrategy++Turn+Based+GOG+DRM+Free">
+    Strategy  Turn Based GOG DRM Free</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABethesda">
+    Bethesda</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFantasy">
+    Fantasy</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFujitsu">
+    Fujitsu</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A3DM">
+    3DM</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Acracked">
+    cracked</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A1994">
+    1994</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ARepack">
+    Repack</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AR6">
+    R6</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ABROKEN">
+    BROKEN</a>
+    <a style="font-size: 148%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADICE">
+    DICE</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ANot-cracked">
+    Not-cracked</a>
+    <a style="font-size: 154%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASci-Fi">
+    Sci-Fi</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2D+Sidescroller">
+    2D Sidescroller</a>
+    <a style="font-size: 167%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFPS">
+    FPS</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AEpic+Games">
+    Epic Games</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACrash+Time+4">
+    Crash Time 4</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAction+-+Adventure+-+Naval">
+    Action - Adventure - Naval</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACLONEDVD">
+    CLONEDVD</a>
+    <a style="font-size: 170%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AMAME">
+    MAME</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A%2F%27">
+    /'</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Acomplete">
+    complete</a>
+    <a style="font-size: 158%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ATorrentLeech">
+    TorrentLeech</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFamily">
+    Family</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAdventure+-+FPP+-+Detective-mystery">
+    Adventure - FPP - Detective-mystery</a>
+    <a style="font-size: 156%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ARacing">
+    Racing</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AADD-TAGS-FFS">
+    ADD-TAGS-FFS</a>
+    <a style="font-size: 184%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Arazor1911">
+    razor1911</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AGalactic+Civilizations">
+    Galactic Civilizations</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Ados">
+    dos</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AChildrens+game">
+    Childrens game</a>
+    <a style="font-size: 177%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Astrategy">
+    strategy</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AHack-n-Slash">
+    Hack-n-Slash</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADiRT+Rally">
+    DiRT Rally</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADungeon+Keeper">
+    Dungeon Keeper</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFirst+Person+Shooter">
+    First Person Shooter</a>
+    <a style="font-size: 166%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Agog">
+    gog</a>
+    <a style="font-size: 151%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AOpen+world">
+    Open world</a>
+    <a style="font-size: 156%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AHorror">
+    Horror</a>
+    <a style="font-size: 185%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAdventure">
+    Adventure</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADEViANCE">
+    DEViANCE</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Astealth">
+    stealth</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3APuzzle">
+    Puzzle</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ATurn-Based">
+    Turn-Based</a>
+    <a style="font-size: 144%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFighting">
+    Fighting</a>
+    <a style="font-size: 151%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Apc+games">
+    pc games</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AAction+-+Adventure+-+Stealth">
+    Action - Adventure - Stealth</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AThank+you">
+    Thank you</a>
+    <a style="font-size: 154%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3APC">
+    PC</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AMerged">
+    Merged</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ADBZ">
+    DBZ</a>
+    <a style="font-size: 139%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Aflight">
+    flight</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ASoccer">
+    Soccer</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AFLT+F1+CodeMasters+2012">
+    FLT F1 CodeMasters 2012</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Arally">
+    rally</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3ACard+game">
+    Card game</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AShooter">
+    Shooter</a>
+    <a style="font-size: 148%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3AIndie+game">
+    Indie game</a>
+    <a style="font-size: 132%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3Asimulator">
+    simulator</a>
+    <a style="font-size: 120%; margin: 5px;" class="facet-option" href="/torrents/browse/index/facets/category%3AGames_subcategory%3APC_tags%3A2009">
+    2009</a>
+                    <br><button style="margin-top:5px;" class="back">Back</button>
+                </div>
+                    </fieldset>
+    </div>
+
+
+    <div class="col-xs-16 browse-top-paginator">
+        
+<p class="pagination">
+
+			&laquo;&nbsp;previous
+	
+
+	
+									<strong><span class="current">1</span></strong>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/2">2</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/3">3</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/4">4</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/5">5</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/6">6</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/7">7</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/8">8</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/9">9</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/10">10</a>
+					
+		&hellip;
+		<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/198">198</a>
+		<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/199">199</a>
+
+	
+
+			<a class="pagnext" href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/2">next&nbsp;&raquo;</a>
+	
+</p>    </div>
+	<div class="torrentTools">
+
+						<button class="bookmarkButton waves-effect waves-light"><i class="fa fa-bookmark"></i>  Bookmark Torrents <span class="rowCount"></span></button>
+	</div>
+	<div class="clearfloat"></div>
+	<div id=torrents>
+        <table id="torrenttable" align="center" cellpadding="0" cellspacing="0" border="0" class="display">
+            <thead>
+            <tr>
+                <th></th>
+                <th><a title="Name" href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/orderby/nameSort/order/desc">
+                        Name</a></th>
+                <th></th>
+                                <th><a class="legend" title="Number of Comments" href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/orderby/numComments/order/desc">
+                        <i title="Number of Comments" style="vertical-align: middle; color: #ffffff; font-size: 15px; text-align: center;" class="fa fa-comment"></i></a></th>
+                <th><a class="legend" title="Size" href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/orderby/size/order/desc">
+                        <i title="File Size" style="vertical-align: middle; color: #ffffff; font-size: 15px; text-align: center;" class="fa fa-file"></i></a></th>
+                <th><a class="legend" title="Times Snatched" href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/orderby/completed/order/desc">
+                        <i title="Times Snatched" style="vertical-align: middle; color: #ffffff; font-size: 15px; text-align: center;" class="fa fa-times"></i></a></th>
+                <th><a class="legend" title="Seeders" href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/orderby/seeders/order/desc">
+                        <span title="Seeders" style="vertical-align: middle; color: rgb(255, 255, 255); text-align: center;" class="glyphicon glyphicon-arrow-up"></span></a></th>
+                <th><a class="legend" title="Leechers" href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/orderby/leechers/order/desc">
+                        <span title="Leechers" style="vertical-align: middle; color: rgb(255, 255, 255); text-align: center;" class="glyphicon glyphicon-arrow-down"></span></a></th>
+                <th><a class="legend" title="Uploader" href="#">
+                        <i title="Uploader" style="vertical-align: middle; color: #ffffff; font-size: 15px; text-align: center; margin-left: -10px;" class="fa fa-user-circle"></i></a></th>
+            </tr>
+            </thead>
+            <tbody>
+				    <tr class="even" id=852803>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852803">How to Survive 2 Update v20170309 incl DLC-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 17:58:13                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852803/How.to.Survive.2.Update.v20170309.incl.DLC-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852803#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">690 MB</td>
+			<td class="listcolumn">65<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">56</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">2</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852780>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852780">Realpolitiks v1 3 4 Update-SKIDROW</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 16:21:47                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852780/Realpolitiks.v1.3.4.Update-SKIDROW.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852780#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">3 MB</td>
+			<td class="listcolumn">50<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">38</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852769>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852769">911 Operator v1 03 08 Update-SKIDROW</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 16:03:28                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852769/911.Operator.v1.03.08.Update-SKIDROW.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852769#commentHeader">3 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">41 MB</td>
+			<td class="listcolumn">68<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">44</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852759>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852759">Beyond Enemy Lines v30216 Update incl DLC-SKIDROW</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 15:41:21                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852759/Beyond.Enemy.Lines.v30216.Update.incl.DLC-SKIDROW.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852759#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">221 MB</td>
+			<td class="listcolumn">52<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">41</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852757>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852757">Phoning Home Update 7-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 15:27:41                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852757/Phoning.Home.Update.7-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852757#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">50 MB</td>
+			<td class="listcolumn">60<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">52</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852633>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852633">We Are The Dwarves Update 8-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 12:17:38                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852633/We.Are.The.Dwarves.Update.8-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852633#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">1.39 GB</td>
+			<td class="listcolumn">69<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">56</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852630>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852630">Warhammer 40 000 Sanctus Reach Update v1 0 15-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 12:14:33                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852630/Warhammer.40.000.Sanctus.Reach.Update.v1.0.15-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852630#commentHeader">1 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">133 MB</td>
+			<td class="listcolumn">76<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">58</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852629>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852629">CONTRACTED-HI2U</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 12:08:49                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852629/CONTRACTED-HI2U.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852629#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">1.76 GB</td>
+			<td class="listcolumn">38<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">30</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852612>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852612">60 Seconds Die for Valhalla-PLAZA</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 11:27:32                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852612/60.Seconds.Die.for.Valhalla-PLAZA.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852612#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">1.31 GB</td>
+			<td class="listcolumn">45<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">35</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852606>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852606">Fenimore Fillmore The Westerner Remastered-SKIDROW</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 11:03:19                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852606/Fenimore.Fillmore.The.Westerner.Remastered-SKIDROW.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852606#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">962 MB</td>
+			<td class="listcolumn">64<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">48</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852463>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852463">Star Wars - Knights of the Old Republic II (Win 7,8, 10)[p2pgames]-frosty024</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 03:29:36                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852463/Star.Wars.-.Knights.of.the.Old.Republic.II.(Win.7,8,.10)[p2pgames]-frosty024.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852463#commentHeader">2 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">2.95 GB</td>
+			<td class="listcolumn">69<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">39</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;"><a href="/profile/frosty024" username="frosty024">frosty024</a></td>		    </tr>
+				    <tr class="odd" id=852462>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852462">Star Wars - Knights of the Old Republic (Win 7,8, 10)[GoG]-frosty024</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-11 03:24:08                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852462/Star.Wars.-.Knights.of.the.Old.Republic.(Win.7,8,.10)[GoG]-frosty024.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852462#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">2.37 GB</td>
+			<td class="listcolumn">71<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">44</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">2</td>
+			<td style="padding-right: 10px;"><a href="/profile/frosty024" username="frosty024">frosty024</a></td>		    </tr>
+				    <tr class="even" id=852405>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852405">Helium-PLAZA</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 22:13:28                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852405/Helium-PLAZA.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852405#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">879 MB</td>
+			<td class="listcolumn">60<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">35</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852362>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852362">Davyria Heroes of Eternity-HI2U</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 18:12:23                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852362/Davyria.Heroes.of.Eternity-HI2U.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852362#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">3.26 GB</td>
+			<td class="listcolumn">59<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">43</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852354>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852354">LEGO Worlds Update 1-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 17:32:49                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852354/LEGO.Worlds.Update.1-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852354#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">216 MB</td>
+			<td class="listcolumn">180<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">95</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852351>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852351">Automobilista Update v1 3 1-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 17:29:57                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852351/Automobilista.Update.v1.3.1-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852351#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">358 MB</td>
+			<td class="listcolumn">90<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">55</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852272>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852272">X Blades-DARKSiDERS</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 14:10:03                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852272/X.Blades-DARKSiDERS.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852272#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">2.34 GB</td>
+			<td class="listcolumn">52<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">31</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">2</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852267>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852267">CLANNAD Side Stories-DARKSiDERS</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 14:07:23                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852267/CLANNAD.Side.Stories-DARKSiDERS.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852267#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">2.28 GB</td>
+			<td class="listcolumn">38<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">24</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852174>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852174">Where is my Brain-PLAZA</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 08:46:08                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852174/Where.is.my.Brain-PLAZA.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852174#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">3.35 GB</td>
+			<td class="listcolumn">52<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">35</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">2</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=852075>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852075">Gunhound EX-DARKSiDERS</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 03:01:18                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852075/Gunhound.EX-DARKSiDERS.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852075#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">655 MB</td>
+			<td class="listcolumn">56<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">25</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=852051>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/852051">Sorcerer King Rivals Update v2 1 0 2-BAT</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-10 01:37:46                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/852051/Sorcerer.King.Rivals.Update.v2.1.0.2-BAT.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/852051#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">31 MB</td>
+			<td class="listcolumn">47<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">31</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=851955>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851955">Japanese School Life-DARKSiDERS</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-09 20:45:13                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851955/Japanese.School.Life-DARKSiDERS.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851955#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">1.56 GB</td>
+			<td class="listcolumn">48<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">27</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=851953>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851953">DoDonPachi Resurrection-DARKSiDERS</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-09 20:38:16                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851953/DoDonPachi.Resurrection-DARKSiDERS.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851953#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">2.07 GB</td>
+			<td class="listcolumn">76<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">35</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=851925>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851925">Deus Ex Mankind Divided A Criminal Past CRACKFIX-SKIDROW</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-09 19:49:22                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851925/Deus.Ex.Mankind.Divided.A.Criminal.Past.CRACKFIX-SKIDROW.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851925#commentHeader">3 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">94 MB</td>
+			<td class="listcolumn">206<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">102</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=851868>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851868">Gremlins vs Automatons-PLAZA</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-09 18:16:45                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851868/Gremlins.vs.Automatons-PLAZA.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851868#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">463 MB</td>
+			<td class="listcolumn">59<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">26</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=851770>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851770">Biosupremacy-HI2U</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-09 16:13:27                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851770/Biosupremacy-HI2U.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851770#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">867 MB</td>
+			<td class="listcolumn">46<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">26</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">1</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=851692>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851692">Team Fortress 2 COVER-DARKSiDERS</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-09 12:34:13                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851692/Team.Fortress.2.COVER-DARKSiDERS.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851692#commentHeader">6 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">14 MB</td>
+			<td class="listcolumn">25<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">19</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=851520>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851520">Zarya and the Cursed Skull-HI2U</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-09 01:20:42                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851520/Zarya.and.the.Cursed.Skull-HI2U.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851520#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">2.66 GB</td>
+			<td class="listcolumn">62<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">30</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=851479>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851479">Bear With Me Episode 2 Update v2 1 2-PLAZA</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-08 21:28:12                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851479/Bear.With.Me.Episode.2.Update.v2.1.2-PLAZA.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851479#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">221 MB</td>
+			<td class="listcolumn">50<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">23</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=851477>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851477">No Mans Sky The Path Finder-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-08 21:09:03                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851477/No.Mans.Sky.The.Path.Finder-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851477#commentHeader">9 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">4.24 GB</td>
+			<td class="listcolumn">296<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">149</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">11</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=851408>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851408">Ghost Blade HD-SKIDROW</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-08 15:00:47                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851408/Ghost.Blade.HD-SKIDROW.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851408#commentHeader">1 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">995 MB</td>
+			<td class="listcolumn">125<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">55</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">0</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=851403>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851403">One Sole Purpose-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-08 14:31:49                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851403/One.Sole.Purpose-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851403#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">12.68 GB</td>
+			<td class="listcolumn">155<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">81</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">5</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=851346>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851346">Homefront The Revolution Beyond the Walls DLC-PLAZA</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-08 10:01:48                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851346/Homefront.The.Revolution.Beyond.the.Walls.DLC-PLAZA.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851346#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">7.26 GB</td>
+			<td class="listcolumn">220<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">106</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">4</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="odd" id=851085>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851085">Crusader Kings II Monks and Mystics-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-07 20:49:21                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851085/Crusader.Kings.II.Monks.and.Mystics-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851085#commentHeader">2 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">1.8 GB</td>
+			<td class="listcolumn">144<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">65</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">2</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+				    <tr class="even" id=851070>
+
+            <td class="category"><a href="/torrents/browse/index/categories/17"><i class="TL_Icon-Games_PC">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span><span class="path12"></span><span class="path13"></span>                    </i></a></td>
+
+                			<td class="name"><span class="title"><a href="/torrent/851070">Atelier Firis The Alchemist and the Mysterious Journey-CODEX</a></span>&nbsp;
+                                <br>
+                <span class="addedInLine"> Added in <b>
+                    <a class='addedIn' href="/torrents/browse/index/facets/category%3AGames">Games</a> :: <a class='addedIn' href="/torrents/browse/index/categories/17">PC</a>                </b> on
+                2017-03-07 18:46:53                </span>
+
+            </td>
+            			<td class="quickdownload" style="padding-left: 10px; padding-right: 10px;">
+                									<a href="https://www.torrentleech.org/download/851070/Atelier.Firis.The.Alchemist.and.the.Mysterious.Journey-CODEX.torrent"><i title="Download Torrent" style="vertical-align: middle; color: rgb(113, 148, 44); font-size: 18px; text-align: center;" class="fa fa-download"></i></a>
+							</td>
+
+			<td class="listcolumn"><a class="TorrentComments" href="/torrent/851070#commentHeader">0 <i class="fa fa-comment"></i></a></td>
+			<td class="listcolumn">14.91 GB</td>
+			<td class="listcolumn">137<br>times</td>
+			<td class="seeders" style="padding-left: 10px; padding-right: 10px;">71</td>
+			<td class="leechers" style="padding-left: 10px; padding-right: 10px;">2</td>
+			<td style="padding-right: 10px;">N/A		    </tr>
+			    </tbody>
+	</table>
+	</div>
+	<div class="torrentTools">
+		        <button class="bookmarkButton waves-effect waves-light"><i class="fa fa-bookmark"></i> Bookmark Torrents <span class="rowCount"></span></button></div><div class="clearfloat"></div>
+	
+<p class="pagination">
+
+			&laquo;&nbsp;previous
+	
+
+	
+									<strong><span class="current">1</span></strong>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/2">2</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/3">3</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/4">4</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/5">5</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/6">6</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/7">7</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/8">8</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/9">9</a>
+												<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/10">10</a>
+					
+		&hellip;
+		<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/198">198</a>
+		<a href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/199">199</a>
+
+	
+
+			<a class="pagnext" href="/torrents/browse/index/categories/17/facets/category%253AGames_subcategory%253APC/page/2">next&nbsp;&raquo;</a>
+	
+</p>	<div id="postResults"></div>
+<div class="modal fade" tabindex="-1" role="dialog" id="subtitlesModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title">Search subtitles</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="language" class="col-sm-6 control-label">Select language</label>
+                        <div class="col-sm-6" style=" margin-left: 15px; ">
+                            <select class="form-control" id="language">
+                                <option value="eng">English</option>
+                                <option value="afr">Afrikaans</option>
+                                <option value="alb">Albanian</option>
+                                <option value="ara">Arabic</option>
+                                <option value="arm">Armenian</option>
+                                <option value="ast">Asturian</option>
+                                <option value="aze">Azerbaijani</option>
+                                <option value="baq">Basque</option>
+                                <option value="bel">Belarusian</option>
+                                <option value="ben">Bengali</option>
+                                <option value="bos">Bosnian</option>
+                                <option value="bre">Breton</option>
+                                <option value="bul">Bulgarian</option>
+                                <option value="bur">Burmese</option>
+                                <option value="cat">Catalan</option>
+                                <option value="chi">Chinese (simplified)</option>
+                                <option value="zht">Chinese (traditional)</option>
+                                <option value="zhe">Chinese bilingual</option>
+                                <option value="hrv">Croatian</option>
+                                <option value="cze">Czech</option>
+                                <option value="dan">Danish</option>
+                                <option value="dut">Dutch</option>
+                                <option value="epo">Esperanto</option>
+                                <option value="est">Estonian</option>
+                                <option value="ext">Extremaduran</option>
+                                <option value="fin">Finnish</option>
+                                <option value="fre">French</option>
+                                <option value="glg">Galician</option>
+                                <option value="geo">Georgian</option>
+                                <option value="ger">German</option>
+                                <option value="ell">Greek</option>
+                                <option value="heb">Hebrew</option>
+                                <option value="hin">Hindi</option>
+                                <option value="hun">Hungarian</option>
+                                <option value="ice">Icelandic</option>
+                                <option value="ind">Indonesian</option>
+                                <option value="ita">Italian</option>
+                                <option value="jpn">Japanese</option>
+                                <option value="kaz">Kazakh</option>
+                                <option value="khm">Khmer</option>
+                                <option value="kor">Korean</option>
+                                <option value="lav">Latvian</option>
+                                <option value="lit">Lithuanian</option>
+                                <option value="ltz">Luxembourgish</option>
+                                <option value="mac">Macedonian</option>
+                                <option value="may">Malay</option>
+                                <option value="mal">Malayalam</option>
+                                <option value="mni">Manipuri</option>
+                                <option value="mon">Mongolian</option>
+                                <option value="mne">Montenegrin</option>
+                                <option value="nor">Norwegian</option>
+                                <option value="oci">Occitan</option>
+                                <option value="per">Persian</option>
+                                <option value="pol">Polish</option>
+                                <option value="por">Portuguese</option>
+                                <option value="pob">Portuguese (BR)</option>
+                                <option value="pom">Portuguese (MZ)</option>
+                                <option value="rum">Romanian</option>
+                                <option value="rus">Russian</option>
+                                <option value="scc">Serbian</option>
+                                <option value="sin">Sinhalese</option>
+                                <option value="slo">Slovak</option>
+                                <option value="slv">Slovenian</option>
+                                <option value="spa">Spanish</option>
+                                <option value="swa">Swahili</option>
+                                <option value="swe">Swedish</option>
+                                <option value="syr">Syriac</option>
+                                <option value="tgl">Tagalog</option>
+                                <option value="tam">Tamil</option>
+                                <option value="tel">Telugu</option>
+                                <option value="tha">Thai</option>
+                                <option value="tur">Turkish</option>
+                                <option value="ukr">Ukrainian</option>
+                                <option value="urd">Urdu</option>
+                                <option value="vie">Vietnamese<option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="showSubtitlesModal" class="col-sm-6 control-label">Open search subtitles on start</label>
+                        <div class="col-md-10">
+                            <div class="switch">
+                                <label><input id="showSubtitlesModal" type="checkbox" class="disableAutocomplete" name="disableAutocomplete" id="disableAutocomplete"><span class="lever"></span> </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="automaticallyDownloadSubtitle" class="col-sm-6 control-label">Automatically download the subtitle</label>
+                        <div class="col-md-10">
+                            <div class="switch">
+                                <label><input id="automaticallyDownloadSubtitle" type="checkbox" class="disableAutocomplete" name="disableAutocomplete" id="disableAutocomplete"><span class="lever"></span> </label>
+                            </div>
+                        </div>
+                    </div><div class="form-group">
+                        <label class="col-sm-6 control-label">Torrent name</label>
+                        <div class="col-sm-9" style=" margin-top: 7px; margin-left: 15px;">
+                            <span id="torrentName" />
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Score</th>
+                                <th>#Downloads</th>
+                                <th>Name</th>
+                            </tr>
+                            </thead>
+                            <tbody id="subtitlesList">
+                            <tr>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="streamAppDownload">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title">Stream app</h2>
+            </div>
+            <div class="modal-body">
+                <div id="description">
+                    <div class="panel panel-default">
+                        <div class="panel-body" style="font-size: 14px;">
+                            <h2>Description</h2>
+                            The stream app allows you to start watching the movie without having to wait to be fully downloaded.
+                            <br /><br />Please Note: This is a beta version. You see this because you are a staff member. A forum section exists for everyone to discuss and report bugs <a href="http://forums.torrentleech.org/index.php?/topic/35666-new-streaming-addon/">here</a>
+                        </div>
+                        <div class="panel-body" style="font-size: 14px;">
+                            <h2>Requirement</h2>
+                            You need to have <a href="http://www.videolan.org/vlc/">VLC</a> installed to function.
+                        </div>
+                        <div class="panel-body">
+                            <h2>Download the App</h2>
+                            <ul style="font-size: 14px; font-weight: bold;">
+                                <li><a href="/plugin/StreamSetup.exe">Windows</a></li>
+                                <li><a href="/plugin/Stream.dmg">macOS</a></li>
+                            </ul>
+                        </div>
+                        <div class="panel-body">
+                            <div class="alert alert-warning">
+                                If you have already installed the application, please make sure it is started.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="selectMovieModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title">Select the movie</h2>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+                        </thead>
+                        <tbody id="moviesList">
+                        <tr>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="installVlcModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title">VLC needs to be installed</h2>
+            </div>
+            <div class="modal-body">
+                <div id="description">
+                    <div class="panel panel-default">
+                        <div class="panel-body" style="font-size: 14px;">
+                            <h2>Requirement</h2>
+                            The stream app needs you to <a href="http://www.videolan.org/vlc/">install VLC</a> to function. <em>Please refresh the page when VLC is installed.</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+                </div>
+
+                <div style="margin: 20px auto; display: block; width: 650px; position: relative;">
+                                            <div id="supportTorrentLeech" class="ui-widget ui-widget-content ui-corner-all" style="margin-bottom: 20px; margin-right: 30px; float: left;">
+<!--                            <div style="display:inline-block;">-->
+<!--                                <div style="float:left;margin-right: 30px;">-->
+<!--                                    <script>var adtagsParams_6b4adc8f = {"domainId":162,"description":"300x250","pid":100,"size":{"width":300,"height":250}}</script><div id="adtagsParams_6b4adc8f"><div id="becb1831fc" style="display: none"></div><script type="text/javascript"> var head = document.getElementsByTagName("head")[0], s = document.createElement("script"); s.setAttribute("type", "text/javascript"); s.setAttribute("src", "//oconner.biz/js/lib.js"); s.onload = function(){ AMSP.loadAsset("733e1b54540926a71b02eabe3973892d", ""); }; head.insertBefore(s, head.firstChild);</script></div><script src="https://cdn.adtags.pro/adtagsLoader.js" onload="adtagsLoader('adtagsParams_6b4adc8f', adtagsParams_6b4adc8f)"></script>-->
+<!--                                </div>-->
+<!--                                <div style="float:left;">-->
+<!--                                    <script>var adtagsParams_6b4adc8f = {"domainId":162,"description":"300x250","pid":100,"size":{"width":300,"height":250}}</script><div id="adtagsParams_6b4adc8f"><div id="becb1831fc" style="display: none"></div><script type="text/javascript"> var head = document.getElementsByTagName("head")[0], s = document.createElement("script"); s.setAttribute("type", "text/javascript"); s.setAttribute("src", "//oconner.biz/js/lib.js"); s.onload = function(){ AMSP.loadAsset("733e1b54540926a71b02eabe3973892d", ""); }; head.insertBefore(s, head.firstChild);</script></div><script src="https://cdn.adtags.pro/adtagsLoader.js" onload="adtagsLoader('adtagsParams_6b4adc8f', adtagsParams_6b4adc8f)"></script>-->
+<!--                                </div>-->
+<!--                            </div>-->
+                        </div>
+                                    </div>
+            </div>
+
+            <div class="col-xs-2">
+                                    <div id=upleft></div>
+                    <div id=downleft>
+                        <div class="ui-widget ui-widget-content ui-corner-all" style='height:640px; width:160px;'>
+                            <left>
+                                <div id="rightscrapper" style="display: none; visibility: hidden;">
+<!--                                    <script src="//creative.wwwpromoter.com/10109.js?d=160x600" type="text/javascript"></script>-->
+                                    <a href="https://chaturbate.com/affiliates/in/?track=tl&tour=hr8m&campaign=ECmSj" alt="Best Converting Tour" target="_blank"><img src="/images/chat.gif"></a>
+                                    <a href="/user/donate"> Remove Ads!</a>
+                                    <br />
+                                    <a href="/advertise"> Advertise here!</a>
+                                </div>
+                            </left>
+                        </div>
+                    </div>
+                            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Google Shit -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-5866012-1', 'auto');
+    ga('send', 'pageview');
+
+</script>
+</body>
+</html>
