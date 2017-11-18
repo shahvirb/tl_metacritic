@@ -12,9 +12,8 @@ import time
 import import_hack as ih
 import logging
 import pprint
+import click
 
-MAX_THREADS = 32
-PAGES = 1
 
 @contextmanager
 def ignored(*exceptions):
@@ -71,33 +70,34 @@ def audit_game_data(game_data):
         with ignored(KeyError): title_count += 1 if gd['torrent_title'] else 0
     logger.info('AUDIT >> len(game_data): {}, title_count: {}, review_title_count: {}'.format(len(game_data), title_count, review_title_count))
 
-if __name__ == '__main__':
-    pp = pprint.PrettyPrinter(indent=4)
-    
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
+
+@click.command()
+@click.argument('outfile', type=click.Path(exists=False))
+@click.option('--pages', '-p', type=int, default=1, help='Number of TL pages to scrape')
+@click.option('--max', '-m', type=int, default=0, help='Max number of results. 0 == No limit')
+@click.option('-mt', '--max_threads', type=int, default=4, help='Max number of threads')
+def main(outfile, pages, max, max_threads=4):
     session = tl_fetch.Session()
     game_data = []
     threads = []
     data_lock = threading.Lock()
-    max_semaphore = threading.BoundedSemaphore(MAX_THREADS)
+    max_semaphore = threading.BoundedSemaphore(max_threads)
     meter = metered.Meter(0.002)
     
     # -------------- TL SCRAPE 
-    for page in range(PAGES):
+    for page in range(pages):
         page += 1
         html = tl_fetch.get_pc_games_page(session, page)
         #soup = tl_saved.get_soup("saved.html")
         soup = tl_parse.make_html_soup(html)
         titles = tl_parse.parse_torrent_titles(soup)
     
+        results = 0
         for i, title in enumerate(titles):
-            #t = LimitedThread(process_torrent, max_semaphore, title, data_lock, game_data)
             meter.run(process_torrent, title, data_lock, game_data)
-            # threads.append(t)
-            # t.start()
-            # time.sleep(1)
+            results += 1
+            if max and results >= max:
+                break
     # --------------
     
     # -------------- IMPORT HACK
@@ -113,5 +113,10 @@ if __name__ == '__main__':
     audit_game_data(game_data)
     vars = {"game_data": game_data}
     html = gen_report_html('web/template.html', vars)
-    write_html('report.html', html)
-    logger.info("Report Written")
+    write_html(outfile, html)
+    logger.info("Report Written: {}".format(outfile))
+    
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    main()
