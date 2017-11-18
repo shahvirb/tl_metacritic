@@ -22,15 +22,18 @@ def ignored(*exceptions):
     except exceptions:
         pass
 
+
 def gen_report_html(template, vars):
     # Notice the use of trim_blocks, which greatly helps control whitespace.
     j2_env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(template))),
                          autoescape=True, trim_blocks=True)
     return j2_env.get_template(os.path.basename(template)).render(vars)
-    
+
+
 def write_html(outfile, html):
     with open(outfile, 'w') as f:
         f.write(html)
+
 
 def process_torrent(title, lock, game_data):
     logger.info("Searching: " + title['title'])
@@ -51,16 +54,6 @@ def process_torrent(title, lock, game_data):
     with lock:
         game_data.append(data)
 
-class LimitedThread(threading.Thread):
-    def __init__(self, worker, max_semaphore, *args):
-        self.max_semaphore = max_semaphore
-        self.worker = worker
-        self.args = args
-        super(LimitedThread, self).__init__()
-
-    def run(self):
-        with self.max_semaphore:
-            self.worker(*self.args)
 
 def audit_game_data(game_data):
     review_title_count = 0
@@ -81,7 +74,6 @@ def main(outfile, pages, max, max_threads=4):
     game_data = []
     threads = []
     data_lock = threading.Lock()
-    max_semaphore = threading.BoundedSemaphore(max_threads)
     meter = metered.Meter(0.002)
     
     # -------------- TL SCRAPE 
